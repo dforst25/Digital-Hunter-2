@@ -3,6 +3,8 @@ import os
 import mysql.connector
 
 from pprint import pprint
+
+
 class DbConnection:
     def __init__(self):
         self.config = {
@@ -33,7 +35,20 @@ class DbConnection:
             rows = cursor.fetchall()
             return rows
 
+    def get_moving_targets(self):
+        cnx = self.get_connection()
+        query = """
+                SELECT entity_id, target_name, priority_level
+                FROM targets
+                WHERE priority_level BETWEEN 1 AND 2 AND movement_distance_km > 5
+                """
+
+        with cnx.cursor(dictionary=True) as cursor:
+            cursor.execute(f"USE {self.database}")
+            cursor.execute(query)
+            return cursor.fetchall()
+
 
 db = DbConnection()
 
-pprint(db.get_all("targets"))
+pprint(db.get_moving_targets())
